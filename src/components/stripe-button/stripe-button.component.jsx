@@ -14,7 +14,7 @@ const StripeButton = ({ price }) => {
   return (
     <StripeCheckout
       label='Pay Now'
-      name='Pinto Clothing Ltd.'
+      name='Example Threads Ltd.'
       billingAddress
       shippingAddress
       image='https://svgshare.com/i/CUz.svg'
