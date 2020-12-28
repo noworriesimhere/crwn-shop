@@ -22,12 +22,16 @@ class App extends React.Component {
 
   componentDidMount() {
     const { setCurrentUser } = this.props;
-
+    //whenever the auth state changes, pass us the user object, then we'll listen for all the user auth objects
+    //that userAuth object is stored in the Authentication table in firebase. gets assigned a UID
+    //this is a next function in our observer. no error call here
     this.unsubscribeFromAuth = auth.onAuthStateChanged(async (userAuth) => {
       if (userAuth) {
         const userRef = await createUserProfileDocument(userAuth);
-
+        //another listener, whenever the snapshot changes (setting or updating or deleting value)
+        //change will be passed onto this snapShot param
         userRef.onSnapshot((snapShot) => {
+          //below is our redux action method to setCurrentUser in redux
           setCurrentUser({
             id: snapShot.id,
             ...snapShot.data(),

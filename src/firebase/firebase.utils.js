@@ -12,11 +12,13 @@ const config = {
   measurementId: 'G-XJX03E54RR',
 };
 
+firebase.initializeApp(config);
+
 export const createUserProfileDocument = async (userAuth, additionalData) => {
   if (!userAuth) return;
-
+  //The userAuth object is used to query the DB for a document reference object
   const userRef = firestore.doc(`users/${userAuth.uid}`);
-
+  //get the snapShot from doc ref object, even if it doesn't exist
   const snapShot = await userRef.get();
 
   if (!snapShot.exists) {
@@ -24,6 +26,7 @@ export const createUserProfileDocument = async (userAuth, additionalData) => {
     const createdAt = new Date();
 
     try {
+      //creating a new document object inside the userRef
       await userRef.set({
         displayName,
         email,
@@ -38,7 +41,43 @@ export const createUserProfileDocument = async (userAuth, additionalData) => {
   return userRef;
 };
 
-firebase.initializeApp(config);
+export const addCollectionAndDocuments = async (
+  collectionKey,
+  objectsToAdd
+) => {
+  const collectionRef = firestore.collection(collectionKey);
+  console.log(collectionRef);
+
+  const batch = firestore.batch(); //send all the requests together
+  objectsToAdd.forEach((obj) => {
+    const newDocRef = collectionRef.doc();
+    // get a doc at an empty string. making a new doc ref in this colleciton and randomly generate me an ID
+    batch.set(newDocRef, obj); // doc ref and the value that we wanna set it to
+  });
+
+  return await batch.commit();
+  //fire off our batch request and return a promise
+};
+
+//We want to convert this array Snapshot into an object
+export const convertCollectionsSnapshotToMap = (collections) => {
+  const transformedCollection = collections.docs.map((doc) => {
+    const { title, items } = doc.data();
+
+    return {
+      //pass string into encordeURI to turn it into a URL friendly thing
+      routeName: encodeURI(title.toLowerCase()),
+      id: doc.id, //this property belongs on the snapshot obj
+      title,
+      items,
+    };
+  });
+
+  return transformedCollection.reduce((accumulator, collection) => {
+    accumulator[collection.title.toLowerCase()] = collection;
+    return accumulator;
+  }, {});
+};
 
 export const auth = firebase.auth();
 export const firestore = firebase.firestore();
