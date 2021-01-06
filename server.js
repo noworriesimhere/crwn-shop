@@ -1,22 +1,18 @@
-import express from 'express';
-import cors from 'cors';
-import bodyParser from 'body-parser';
-import path from 'path';
-import dotenv from 'dotenv';
+const express = require('express');
+const cors = require('cors');
+const bodyParser = require('body-parser');
+const path = require('path');
 
-if (process.env.NODE_ENV !== 'production') {
-  dotenv.config();
-}
+if (process.env.NODE_ENV !== 'production') require('dotenv').config();
 
-import stripeApi from 'stripe';
-const stripe = stripeApi(process.env.STRIPE_SECRET_KEY);
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 const app = express();
 const port = process.env.PORT || 5000;
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-//cross original request
+
 app.use(cors());
 
 if (process.env.NODE_ENV === 'production') {
